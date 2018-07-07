@@ -1,10 +1,10 @@
 from irc.irc import Irc
-from config import PASS, NICKNAME
+from config import PASS, NICKNAME, CHANNEL
 import time
 
 
 message_number = 0
-bot = Irc(NICKNAME, PASS, 'dakotaz')
+bot = Irc(NICKNAME, PASS, CHANNEL)
 
 
 while True:
