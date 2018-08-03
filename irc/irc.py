@@ -93,26 +93,25 @@ class Irc:
         self.messages = []
         return messages
 
+    def connect_bot(self):
+        while True:
+                try:
+                    self.socket = self.open_socket(self.nickname, self.oauth_key, self.channel, self.host, self.port)
+                    self.socket.settimeout(300)
+                    self.init_room()
+                    return
+                except (socket.timeout, socket.gaierror):
+                    print('Could not reconnect.. Retrying in 5 seconds..')
+                    time.sleep(4)
+
     def main_thread(self):
         self.connect_bot()
         while True:
             time.sleep(0.05)
             try:
-                print('Tentative de reception de données')
                 self.receive_data()
-                print('Données recues..')
             except:
                 self.connect_bot()
-
-    def connect_bot(self):
-        while True:
-                try:
-                    self.socket = self.open_socket(self.nickname, self.oauth_key, self.channel, self.host, self.port)
-                    self.init_room()
-                    return
-                except AttributeError:
-                    print('Could not reconnect.. Retrying in 5 seconds..')
-                    time.sleep(4)
 
 
 
@@ -124,6 +123,4 @@ class Irc:
                 if self.last_ping <= 0:
                     print('Did not received ping since a long time .. ? ')
                     self.socket = None
-                else:
-                    print(self.last_ping)
                 self.last_ping -= 1
