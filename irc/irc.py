@@ -94,27 +94,36 @@ class Irc:
         return messages
 
     def main_thread(self):
-        self.socket = self.open_socket(self.nickname, self.oauth_key, self.channel, self.host, self.port)
-        self.init_room()
+        self.connect_bot()
         while True:
             time.sleep(0.05)
             try:
+                print('Tentative de reception de données')
                 self.receive_data()
-            except (AttributeError, ConnectionResetError):
+                print('Données recues..')
+            except:
+                self.connect_bot()
+
+    def connect_bot(self):
+        while True:
                 try:
-                    print('BIG FAT POOP')
                     self.socket = self.open_socket(self.nickname, self.oauth_key, self.channel, self.host, self.port)
                     self.init_room()
+                    return
                 except AttributeError:
                     print('Could not reconnect.. Retrying in 5 seconds..')
                     time.sleep(4)
 
+
+
     def ping_thread(self):
         while True:
-            while self.last_ping > 0:
+            self.last_ping = 300
+            while self.last_ping >= 0:
                 time.sleep(1)
                 if self.last_ping <= 0:
                     print('Did not received ping since a long time .. ? ')
                     self.socket = None
                 else:
-                    self.last_ping -= 1
+                    print(self.last_ping)
+                self.last_ping -= 1
