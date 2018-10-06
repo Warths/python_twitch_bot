@@ -14,7 +14,7 @@ class Irc:
         self.oauth_key = oauth_key
         self.port = port
         self.nickname = nickname
-        self.channel = channel
+        self.channel = channel.lower()
         self.last_ping = 300
         self.message = []
         self.started = False
