@@ -3,19 +3,23 @@ class Message:
         self.message_raw = message
         self.channel = '#' + channel
         self.type = self.get_type()
-        if self.type in ['PRIVMSG', 'CLEARCHAT', 'USERNOTICE']:
+        if self.type in ['PRIVMSG', 'CLEARCHAT', 'USERNOTICE', 'WHISPER']:
             self.tags = self.parse_tags(self.get_tags())
         else:
             self.tags = {}
         if self.type in [':twitch.tv/']:
             self.parse_cap_ack()
         elif self.type in ['WHISPER']:
-            self.channel = channel
+            self.channel = self.message_raw.split('WHISPER ')[1].split(' ')[0]
+            self.content = self.get_content()
         else:
             self.content = self.get_content()
 
     def get_type(self):
         msg_type = self.message_raw.split(' #')[0].split(' ')[-1]
+        msg_type_whisper = self.message_raw.split(' ')[2]
+        if msg_type_whisper == 'WHISPER':
+            return msg_type_whisper
         return msg_type
 
     def get_tags(self):
@@ -27,9 +31,12 @@ class Message:
         tags = tags_raw.split(';')
         for attribute in tags:
             temp = attribute.split('=')
-            if temp[0] == '@badges':
+            if temp[0] == 'badges':
                 temp[1] = self.parse_badge(temp[1])
-            tags_dict[temp[0]] = temp[1]
+            if temp[0] == 'badges':
+                tags_dict['@badges'] = temp[1]
+            else:
+                tags_dict[temp[0]] = temp[1]
         return tags_dict
 
     def get_channel(self):
@@ -38,6 +45,9 @@ class Message:
 
     def get_content(self):
         content = self.message_raw.split(self.channel + ' :')
+        #if self.type == 'WHISPER':
+        #    print(self.message_raw.split(" WHISPER ")[1].split(' :', 1)[1])
+        #    return self.message_raw.split(" WHISPER ")[1].split(' :', 1)[1]
         if len(content) == 1:
             content = self.message_raw.split(self.channel + ' ')
             if len(content) == 1:
